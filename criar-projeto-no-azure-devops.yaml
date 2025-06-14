@@ -27,7 +27,7 @@ spec:
       name: Clona template
       action: fetch:template
       input:
-        url: ./ # pode ser outro repositório também
+        url: ./
         values:
           nome: ${{ parameters.nome }}
 
@@ -35,7 +35,7 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl: dev.azure.com/andersonmd/backstage/_git/${{ parameters.repo }}
+        repoUrl: dev.azure.com/andersonmd/backstage/${{ parameters.repo }}
         description: Projeto gerado pelo Backstage com Scaffolder
         defaultBranch: main
 
