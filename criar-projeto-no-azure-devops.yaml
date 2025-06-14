@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: exemplo-azure
   title: Cria Repositório no Azure DevOps
-  description: Gera um novo repositório Git dentro de um projeto existente no Azure DevOps
+  description: "Gera um novo repositório Git dentro de um projeto existente no Azure DevOps"
 spec:
   owner: DevOps
   type: service
@@ -17,11 +17,11 @@ spec:
         nome:
           type: string
           title: Nome Lógico do Projeto
-          description: Usado dentro dos arquivos gerados (ex: README.md)
+          description: "Usado dentro dos arquivos gerados (ex: README.md)"
         repo:
           type: string
           title: Nome do Repositório
-          description: O nome do repositório a ser criado no Azure DevOps
+          description: "O nome do novo repo que será criado no Azure DevOps"
 
   steps:
     - id: fetch-base
@@ -30,14 +30,14 @@ spec:
       input:
         url: ./
         values:
-          nome: ${{ parameters.nome }}
+          nome: "${{ parameters.nome }}"
 
     - id: publish
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        # <<< APENAS ORG/PROJECT/REPO <<< sem protocolo, sem _git
-        repoUrl: "andersonmd/backstage/${{ parameters.repo }}"
+        # APENAS ORG/PROJECT/REPO ── sem https:// e sem /_git/
+        repoUrl: "dev.azure.com/andersonmd/backstage/${{ parameters.repo }}"
         description: "Projeto gerado pelo Backstage: ${{ parameters.nome }}"
         defaultBranch: main
 
