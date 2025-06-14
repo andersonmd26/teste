@@ -35,13 +35,15 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        # >>> O FORMATO CORRETO ABAIXO: organization / project / repo-name
-        repoUrl: dev.azure.com/andersonmd/backstage/${{ parameters.repo }}
+        repoUrl:
+          host: dev.azure.com
+          organization: andersonmd
+          project: backstage
+          repo: ${{ parameters.repo }}
         description: Projeto gerado pelo Backstage com Scaffolder
         defaultBranch: main
 
   output:
     links:
       - title: Acesse o repositório
-        # >>> APENAS A URL DE ACESSO, COM _git
         url: https://dev.azure.com/andersonmd/backstage/_git/${{ parameters.repo }}
