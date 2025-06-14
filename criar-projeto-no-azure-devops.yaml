@@ -23,12 +23,6 @@ spec:
           description: Nome do repositório em Azure DevOps
 
   steps:
-    - id: set-repo-url
-      name: Preparaaaa URL do repositório
-      action: debug:log
-      input:
-        message: Setting repo URL to dev.azure.com/andersonmd/backstage/${{ parameters.repo }}
-
     - id: fetch-base
       name: Clona template
       action: fetch:template
@@ -41,7 +35,8 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl: dev.azure.com/andersonmd/backstage/teste
+        # <<< DEVE SER UMA STRING LITERAL <<<  
+        repoUrl: "dev.azure.com/andersonmd/backstage/${{ parameters.repo }}"
         description: Projeto gerado pelo Backstage com Scaffolder
         defaultBranch: main
 
