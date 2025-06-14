@@ -35,11 +35,7 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl:
-          host: dev.azure.com
-          organization: andersonmd
-          project: backstage
-          repo: ${{ parameters.repo }}
+        repoUrl: dev.azure.com/andersonmd/backstage/${{ parameters.repo }}
         description: Projeto gerado pelo Backstage com Scaffolder
         defaultBranch: main
 
