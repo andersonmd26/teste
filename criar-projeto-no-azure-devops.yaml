@@ -1,0 +1,45 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: exemplo-azure
+  title: Projeto Backstage no Azure DevOps
+  description: Cria um projeto no repositório do Azure DevOps
+spec:
+  owner: DevOps
+  type: service
+
+  parameters:
+    - title: Informações do projeto
+      required:
+        - nome
+        - repo
+      properties:
+        nome:
+          type: string
+          title: Nome do projeto
+        repo:
+          type: string
+          title: Nome do repositório
+          description: Nome do repositório em Azure DevOps
+
+  steps:
+    - id: fetch-base
+      name: Clona template
+      action: fetch:template
+      input:
+        url: ./ # pode ser outro repositório também
+        values:
+          nome: ${{ parameters.nome }}
+
+    - id: publish
+      name: Publica no Azure DevOps
+      action: publish:azure
+      input:
+        repoUrl: dev.azure.com/andersonmd/backstage/_git/${{ parameters.repo }}
+        description: Projeto gerado pelo Backstage com Scaffolder
+        defaultBranch: main
+
+  output:
+    links:
+      - title: Acesse o repositório
+        url: https://dev.azure.com/andersonmd/backstage/_git/${{ parameters.repo }}
