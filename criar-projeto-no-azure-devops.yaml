@@ -2,8 +2,8 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: exemplo-azure
-  title: Cria Repositório no Azure DevOps
-  description: "Gera um novo repositório Git dentro de um projeto existente no Azure DevOps"
+  title: Projeto no Azure DevOps
+  description: Cria um repositório num projeto do Azure DevOps
 spec:
   owner: DevOps
   type: service
@@ -11,17 +11,25 @@ spec:
   parameters:
     - title: Informações Básicas
       required:
-        - nome
+        - organization
+        - project
         - repo
+        - nome
       properties:
-        nome:
+        organization:
           type: string
-          title: Nome Lógico do Projeto
-          description: "Usado dentro dos arquivos gerados (ex: README.md)"
+          title: Organização Azure
+          default: andersonmd
+        project:
+          type: string
+          title: Projeto Azure DevOps
+          default: backstage
         repo:
           type: string
-          title: Nome do Repositório
-          description: "O nome do novo repo que será criado no Azure DevOps"
+          title: Nome do repositório
+        nome:
+          type: string
+          title: Nome lógico do serviço
 
   steps:
     - id: fetch-base
@@ -30,18 +38,17 @@ spec:
       input:
         url: ./
         values:
-          nome: "${{ parameters.nome }}"
+          nome: ${{ parameters.nome }}
 
     - id: publish
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        # APENAS ORG/PROJECT/REPO ── sem https:// e sem /_git/
-        repoUrl: "dev.azure.com/andersonmd/backstage/${{ parameters.repo }}"
-        description: "Projeto gerado pelo Backstage: ${{ parameters.nome }}"
+        repoUrl: "dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/${{ parameters.repo }}"
+        description: Projeto gerado pelo Backstage com Scaffolder
         defaultBranch: main
 
   output:
     links:
-      - title: Acesse no Azure DevOps
-        url: "https://dev.azure.com/andersonmd/backstage/_git/${{ parameters.repo }}"
+      - title: Acesse o repositório
+        url: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
