@@ -44,8 +44,8 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl: "dev.azure.com/andersonmd/backstage/primeiro-teste"
-        description: Projeto gerado pelo Backstage
+        repoUrl: "dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/${{ parameters.repo }}"
+        description: Projeto gerado pelo Backstage com Scaffolder
         defaultBranch: main
 
   output:
