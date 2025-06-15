@@ -113,7 +113,7 @@ spec:
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: ./templates/cria-sg-crossplane
+        url: ./templates/cria-sg-crossplane/workspace.yaml.njk
         targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
@@ -121,7 +121,7 @@ spec:
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
-
+        templateFile: workspace.yaml
 
     - id: ls
       name: Listar arquivos em ./output
