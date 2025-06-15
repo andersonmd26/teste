@@ -9,98 +9,32 @@ spec:
   type: configuration
 
   parameters:
-    # 1) Parâmetros de infra
+    # --- seus parâmetros de infra (sgName, region, description, ingressRules, egressRules) aqui ---
     - title: Configurações do Security Group
-      required:
-        - sgName
-        - region
-        - description
+      required: [sgName, region, description]
       properties:
-        sgName:
-          type: string
-          title: Nome do SG
-          default: sg-exemplo
-        region:
-          type: string
-          title: Região Crossplane
-          default: us-east-1
-        description:
-          type: string
-          title: Descrição
-          default: "Criado via Backstage"
-        ingressRules:
-          type: array
-          title: Regras de Ingresso
-          items:
-            type: object
-            required: [fromPort,toPort,protocol,cidrBlocks]
-            properties:
-              fromPort:   { type: number, title: Porta Inicial, default: 22 }
-              toPort:     { type: number, title: Porta Final,    default: 22 }
-              protocol:
-                type: string
-                title: Protocolo
-                enum: ["tcp","udp","icmp"]
-                default: tcp
-              cidrBlocks:
-                type: array
-                title: CIDR Blocks
-                items: { type: string }
-                default: ["0.0.0.0/0"]
-        egressRules:
-          type: array
-          title: Regras de Egressão
-          items:
-            type: object
-            required: [fromPort,toPort,protocol,cidrBlocks]
-            properties:
-              fromPort:   { type: number, title: Porta Inicial, default: 0 }
-              toPort:     { type: number, title: Porta Final,    default: 0 }
-              protocol:
-                type: string
-                title: Protocolo
-                enum: ["tcp","udp","icmp","-1"]
-                default: -1
-              cidrBlocks:
-                type: array
-                title: CIDR Blocks
-                items: { type: string }
-                default: ["0.0.0.0/0"]
+        sgName:        { type: string, title: Nome do SG, default: sg-exemplo }
+        region:        { type: string, title: Região Crossplane, default: us-east-1 }
+        description:   { type: string, title: Descrição, default: "Criado via Backstage" }
+        ingressRules:  { type: array,  title: Regras de Ingresso, /*…*/ }
+        egressRules:   { type: array,  title: Regras de Egressão, /*…*/ }
 
-    # 2) Parâmetros de Git (repo já existente)
+    # Parâmetros do Azure DevOps
     - title: Azure DevOps Repo
       required: [organization, project, repo]
       properties:
-        organization:
-          type: string
-          title: Organização (org)
-          default: andersonmd
-        project:
-          type: string
-          title: Projeto
-          default: backstage
-        repo:
-          type: string
-          title: Repositório
-          default: sg-crossplane
+        organization: { type: string, title: Organização, default: andersonmd }
+        project:      { type: string, title: Projeto,      default: backstage }
+        repo:         { type: string, title: Repositório,  default: sg-crossplane }
 
   steps:
-    # 1) Clona o repo/branch onde o arquivo vai entrar
-    - id: clone
-      name: Clonar repositório existente
-      action: azure:repo:clone
-      input:
-        remoteUrl:  "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
-        branch:     desenvolvimento
-        targetPath: ./workspace
-
-    # 2) Processa seu template Nunjucks dentro de `templates/cria-sg-crossplane`
+    # 1) Gera apenas o workspace.yaml processando seu template Nunjucks
     - id: generate
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url:        ./templates/cria-sg-crossplane
-        targetPath: ./workspace
+        url: ./templates/cria-sg-crossplane
+        targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
           region:       ${{ parameters.region }}
@@ -108,16 +42,18 @@ spec:
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
 
-    # 3) Comita apenas as mudanças (o novo workspace.yaml) de volta no mesmo repo
-    - id: push
-      name: Commitar arquivo no mesmo repo
-      action: azure:repo:push
+    # 2) Cria o repo e comita todo o conteúdo de ./output nele
+    - id: publish
+      name: Publica no Azure DevOps
+      action: publish:azure
       input:
-        branch:           desenvolvimento
-        sourcePath:       ./workspace
-        gitCommitMessage: "Add workspace.yaml for SG ${{ parameters.sgName }} via Scaffolder"
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
+        defaultBranch:     desenvolvimento
+        sourcePath:        ./output
+        description:       "Workspace SG ${{ parameters.sgName }}"
+        gitCommitMessage:  "Add workspace.yaml via Backstage"
 
   output:
     links:
       - title: Ver workspace.yaml no Azure DevOps
-        url: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}/blob/desenvolvimento/workspace.yaml"
+        url: "https://dev.azure.com/${{parameters.organization}}/${{parameters.project}}/_git/${{parameters.repo}}/blob/desenvolvimento/workspace.yaml"
