@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: devops
+  description: Time de DevOps responsável pelos templates
+spec:
+  type: team
+  children: []
+  # opcional: você pode listar membros ou grupos filhos aqui,
+  # por exemplo:
+  # members:
+  #   - user:default/andersonmd
