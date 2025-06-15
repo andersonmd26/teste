@@ -1,0 +1,33 @@
+apiVersion: opentofu.upbound.io/v1beta1
+kind: Workspace
+metadata:
+  name: {{ values.sgName }}
+  namespace: crossplane-system
+spec:
+  providerConfigRef:
+    name: providerconfig-{{ values.region }}
+  forProvider:
+    source: Inline
+    module: |
+      resource "aws_security_group" "{{ values.sgName }}" {
+        name_prefix = "{{ values.sgName }}-"
+        description = "{{ values.description }}"
+
+        {% for rule in values.ingressRules %}
+        ingress {
+          from_port   = {{ rule.fromPort }}
+          to_port     = {{ rule.toPort }}
+          protocol    = "{{ rule.protocol }}"
+          cidr_blocks = [{% for cidr in rule.cidrBlocks %}"{{ cidr }}"{{ ", " if not loop.last }}{% endfor %}]
+        }
+        {% endfor %}
+
+        {% for rule in values.egressRules %}
+        egress {
+          from_port   = {{ rule.fromPort }}
+          to_port     = {{ rule.toPort }}
+          protocol    = "{{ rule.protocol }}"
+          cidr_blocks = [{% for cidr in rule.cidrBlocks %}"{{ cidr }}"{{ ", " if not loop.last }}{% endfor %}]
+        }
+        {% endfor %}
+      }
