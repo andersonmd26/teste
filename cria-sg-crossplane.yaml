@@ -33,7 +33,7 @@ spec:
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: ./templates/cria-sg-crossplane
+        url: ./templates/workspace.yaml.njk      # Caminho para o template nunjucks
         targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
@@ -41,6 +41,8 @@ spec:
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
+        templateFile: workspace.yaml             # Nome do arquivo final a ser gerado
+
 
     # 2) Cria o repo e comita todo o conteúdo de ./output nele
     - id: publish
