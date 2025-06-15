@@ -30,25 +30,17 @@ spec:
   steps:
     - id: generate
       name: Gerar workspace.yaml
-      action: fetch:file
+      action: fetch:template
       input:
-        url: https://raw.githubusercontent.com/andersonmd26/teste/main/templates/cria-sg-crossplane/workspace.yaml.njk
-        targetPath: ./output/workspace.yaml.njk
+        url: ./templates/cria-sg-crossplane/workspace.yaml.njk
+        targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
           region:       ${{ parameters.region }}
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
-  
-    - id: move
-      name: Renomear para workspace.yaml
-      action: move:directory
-      input:
-        files:
-          - from: ./output/workspace.yaml.njk
-            to:   ./output/workspace.yaml
-
+        templateFile: workspace.yaml
 
     # 2) Cria o repo e comita todo o conteúdo de ./output nele
     - id: publish
