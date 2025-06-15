@@ -99,7 +99,7 @@ spec:
         repo:
           type: string
           title: Nome do repositório
-          default: sg-crossplane
+          default: backstage
 
   steps:
     - id: fetch-sg
