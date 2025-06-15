@@ -9,6 +9,7 @@ spec:
   type: configuration
 
   parameters:
+    # 1) Parâmetros de infra
     - title: Configurações do Security Group
       required:
         - sgName
@@ -80,6 +81,26 @@ spec:
                   type: string
                 default: ["0.0.0.0/0"]
 
+    # 2) Parâmetros de Git
+    - title: Azure DevOps
+      required:
+        - organization
+        - project
+        - repo
+      properties:
+        organization:
+          type: string
+          title: Organização (org)
+          default: andersonmd
+        project:
+          type: string
+          title: Projeto (project)
+          default: backstage
+        repo:
+          type: string
+          title: Nome do repositório
+          default: sg-crossplane
+
   steps:
     - id: fetch-sg
       name: Gera o YAML do SG
@@ -97,12 +118,11 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl: ${{ parameters.organizationUrl }}?project=${{ parameters.project }}&repo=${{ parameters.repo }}
+        repoUrl: "dev.azure.com?organization=${{ parameters.organization }}&project=${{ parameters.project }}&repo=${{ parameters.repo }}"
         defaultBranch: desenvolvimento
-        sourcePath: "./"              # todo o workspace, que só tem o workspace.yaml
         description: "Workspace SG ${{ parameters.sgName }}"
 
   output:
     links:
-      - title: Ver Workspace.yaml
-        url: ${{ steps.publish.output.repoUrl }}/blob/desenvolvimento/workspace.yaml
+      - title: Ver workspace.yaml
+        url: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}/blob/desenvolvimento/workspace.yaml"
