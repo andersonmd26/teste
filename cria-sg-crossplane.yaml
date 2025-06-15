@@ -3,18 +3,77 @@ kind: Template
 metadata:
   name: cria-sg-crossplane
   title: Criar Security Group no Crossplane
+  description: Gera um Workspace do Crossplane (OpenTofu) com AWS Security Group
 spec:
   owner: DevOps
   type: configuration
 
   parameters:
-    # --- seus parâmetros de SG (sgName, ingressRules etc) aqui ---
+    # 1) Parâmetros de infra
+    - title: Configurações do Security Group
+      required:
+        - sgName
+        - region
+        - description
+      properties:
+        sgName:
+          type: string
+          title: Nome do SG
+          default: sg-exemplo
+        region:
+          type: string
+          title: Região Crossplane
+          default: us-east-1
+        description:
+          type: string
+          title: Descrição
+          default: "Criado via Backstage"
+        ingressRules:
+          type: array
+          title: Regras de Ingresso
+          items:
+            type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
+            properties:
+              fromPort:   { type: number, title: Porta Inicial, default: 22 }
+              toPort:     { type: number, title: Porta Final,    default: 22 }
+              protocol:
+                type: string
+                title: Protocolo
+                enum: ["tcp","udp","icmp"]
+                default: tcp
+              cidrBlocks:
+                type: array
+                title: CIDR Blocks
+                items: { type: string }
+                default: ["0.0.0.0/0"]
+        egressRules:
+          type: array
+          title: Regras de Egressão
+          items:
+            type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
+            properties:
+              fromPort:   { type: number, title: Porta Inicial, default: 0 }
+              toPort:     { type: number, title: Porta Final,    default: 0 }
+              protocol:
+                type: string
+                title: Protocolo
+                enum: ["tcp","udp","icmp","-1"]
+                default: -1
+              cidrBlocks:
+                type: array
+                title: CIDR Blocks
+                items: { type: string }
+                default: ["0.0.0.0/0"]
+
+    # 2) Parâmetros de Git (repo já existente)
     - title: Azure DevOps Repo
       required: [organization, project, repo]
       properties:
         organization:
           type: string
-          title: Organização
+          title: Organização (org)
           default: andersonmd
         project:
           type: string
@@ -26,36 +85,39 @@ spec:
           default: sg-crossplane
 
   steps:
+    # 1) Clona o repo/branch onde o arquivo vai entrar
     - id: clone
       name: Clonar repositório existente
       action: azure:repo:clone
       input:
-        remoteUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
-        branch: desenvolvimento
+        remoteUrl:  "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
+        branch:     desenvolvimento
         targetPath: ./workspace
 
-    - id: fetch
-      name: Gerar o YAML do SG
+    # 2) Processa seu template Nunjucks dentro de `templates/cria-sg-crossplane`
+    - id: generate
+      name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: ./templates/cria-sg-crossplane
+        url:        ./templates/cria-sg-crossplane
         targetPath: ./workspace
         values:
-          sgName: ${{ parameters.sgName }}
-          region: ${{ parameters.region }}
-          description: ${{ parameters.description }}
+          sgName:       ${{ parameters.sgName }}
+          region:       ${{ parameters.region }}
+          description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
-          egressRules: ${{ parameters.egressRules }}
+          egressRules:  ${{ parameters.egressRules }}
 
+    # 3) Comita apenas as mudanças (o novo workspace.yaml) de volta no mesmo repo
     - id: push
       name: Commitar arquivo no mesmo repo
       action: azure:repo:push
       input:
-        branch: desenvolvimento
-        sourcePath: ./workspace
-        gitCommitMessage: "Add SG ${{ parameters.sgName }} via Scaffolder"
+        branch:           desenvolvimento
+        sourcePath:       ./workspace
+        gitCommitMessage: "Add workspace.yaml for SG ${{ parameters.sgName }} via Scaffolder"
 
   output:
     links:
-      - title: Ver arquivo no Azure DevOps
+      - title: Ver workspace.yaml no Azure DevOps
         url: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}/blob/desenvolvimento/workspace.yaml"
