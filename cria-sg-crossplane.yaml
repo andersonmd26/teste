@@ -9,8 +9,12 @@ spec:
   type: configuration
 
   parameters:
+    # 1) Parâmetros de infra
     - title: Configurações do Security Group
-      required: [sgName, region, description]
+      required:
+        - sgName
+        - region
+        - description
       properties:
         sgName:
           type: string
@@ -29,41 +33,53 @@ spec:
           title: Regras de Ingresso
           items:
             type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
             properties:
               fromPort:
-                type: integer
+                type: number
                 title: Porta Inicial
+                default: 22
               toPort:
-                type: integer
+                type: number
                 title: Porta Final
+                default: 22
               protocol:
                 type: string
                 title: Protocolo
+                enum: ["tcp","udp","icmp"]
+                default: tcp
               cidrBlocks:
                 type: array
-                title: CIDRs
+                title: CIDR Blocks
                 items:
                   type: string
+                default: ["0.0.0.0/0"]
         egressRules:
           type: array
           title: Regras de Egressão
           items:
             type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
             properties:
               fromPort:
-                type: integer
+                type: number
                 title: Porta Inicial
+                default: 0
               toPort:
-                type: integer
+                type: number
                 title: Porta Final
+                default: 0
               protocol:
                 type: string
                 title: Protocolo
+                enum: ["tcp","udp","icmp","-1"]
+                default: -1
               cidrBlocks:
                 type: array
-                title: CIDRs
+                title: CIDR Blocks
                 items:
                   type: string
+                default: ["0.0.0.0/0"]
 
     - title: Azure DevOps Repo
       required: [organization, project, repo]
@@ -97,7 +113,7 @@ spec:
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: ./templates/cria-sg-crossplane/workspace.yaml.njk
+        url: ./templates/cria-sg-crossplane
         targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
@@ -105,7 +121,7 @@ spec:
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
-        templateFile: workspace.yaml
+
 
     - id: ls
       name: Listar arquivos em ./output
