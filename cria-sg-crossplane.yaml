@@ -25,7 +25,7 @@ spec:
       properties:
         organization: { type: string, title: Organização, default: andersonmd }
         project:      { type: string, title: Projeto,      default: backstage }
-        repo:         { type: string, title: Repositório,  default: sg-crossplane }
+        repo:         { type: string, title: Repositório,  default: sg-crossplane3 }
 
   steps:
     # 1) Gera apenas o workspace.yaml processando seu template Nunjucks
