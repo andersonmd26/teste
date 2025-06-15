@@ -25,7 +25,7 @@ spec:
       properties:
         organization: { type: string, title: Organização, default: andersonmd }
         project:      { type: string, title: Projeto,      default: backstage }
-        repo:         { type: string, title: Repositório,  default: sg-crossplane3 }
+        repo:         { type: string, title: Repositório,  default: sg-crossplane4 }
 
   steps:
     # 1) Gera apenas o workspace.yaml processando seu template Nunjucks
@@ -33,7 +33,7 @@ spec:
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: ./templates/cria-sg-crossplane/workspace.yaml.njk
+        url: https://raw.githubusercontent.com/andersonmd26/teste/refs/heads/main/templates/cria-sg-crossplane/workspace.yaml.njk
         targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
