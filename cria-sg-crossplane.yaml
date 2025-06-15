@@ -28,6 +28,17 @@ spec:
         repo:         { type: string, title: Repositório,  default: sg-crossplane4 }
 
   steps:
+    - id: debug-vars
+      name: Logar variáveis recebidas
+      action: debug:log
+      input:
+        message: |
+          sgName: ${{ parameters.sgName }}
+          region: ${{ parameters.region }}
+          description: ${{ parameters.description }}
+          ingressRules: ${{ parameters.ingressRules }}
+          egressRules: ${{ parameters.egressRules }}
+  
     - id: generate
       name: Gerar workspace.yaml
       action: fetch:template
@@ -41,8 +52,15 @@ spec:
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
         templateFile: workspace.yaml
-
-    # 2) Cria o repo e comita todo o conteúdo de ./output nele
+  
+    - id: ls
+      name: Listar arquivos em ./output
+      action: debug:log
+      input:
+        message: |
+          Arquivos em ./output:
+          {{ $glob('./output/*') }}
+  
     - id: publish
       name: Publica no Azure DevOps
       action: publish:azure
@@ -52,6 +70,7 @@ spec:
         sourcePath:        ./output
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Add workspace.yaml via Backstage"
+
 
   output:
     links:
