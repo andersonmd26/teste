@@ -28,12 +28,11 @@ spec:
         repo:         { type: string, title: Repositório,  default: sg-crossplane4 }
 
   steps:
-    # 1) Gera apenas o workspace.yaml processando seu template Nunjucks
     - id: generate
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: https://raw.githubusercontent.com/andersonmd26/teste/refs/heads/main/templates/cria-sg-crossplane/workspace.yaml.njk
+        url: https://raw.githubusercontent.com/andersonmd26/teste/main/templates/cria-sg-crossplane/workspace.yaml.njk
         targetPath: ./output
         values:
           sgName:       ${{ parameters.sgName }}
@@ -41,7 +40,14 @@ spec:
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
-        templateFile: workspace.yaml
+  
+    - id: move
+      name: Renomear para workspace.yaml
+      action: move:directory
+      input:
+        files:
+          - from: ./output/workspace.yaml.njk
+            to:   ./output/workspace.yaml
 
 
     # 2) Cria o repo e comita todo o conteúdo de ./output nele
