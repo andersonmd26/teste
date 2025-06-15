@@ -1,47 +1,32 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: exemplo-simples
-  title: Exemplo Simples de Template
-  description: Teste mínimo para geração de arquivo via formulário
+  name: exemplo-download
+  title: Exemplo com Download
 spec:
-  owner: DevOps
-  type: configuration
+  owner: user:default/andersonmd26
+  type: service
 
   parameters:
-    - title: Dados do arquivo
-      required: [nome, descricao]
+    - title: Parâmetros
+      required: [nome]
       properties:
         nome:
           type: string
-          title: Nome do recurso
-          default: exemplo-teste
-        descricao:
-          type: string
-          title: Descrição
-          default: "Arquivo gerado via Backstage"
+          title: Nome do arquivo
+          default: arquivo-teste
 
   steps:
     - id: gerar
       name: Gerar arquivo
       action: fetch:template
       input:
-        url: ./templates/exemplo-simples/meu-arquivo.yaml.njk
+        url: ./templates/exemplo-simples/template.yaml.njk
         targetPath: ./output
         values:
           nome: ${{ parameters.nome }}
-          descricao: ${{ parameters.descricao }}
-        templateFile: meu-arquivo.yaml
-
-    - id: ls
-      name: Listar arquivos em ./output
-      action: debug:log
-      input:
-        message: |
-          Arquivos em ./output:
-          {% for file in $glob('./output/*') %}{{ file }}{% endfor %}
 
   output:
-    links:
-      - title: Ver arquivo gerado
-        url: ./output/meu-arquivo.yaml
+    files:
+      - title: Baixar arquivo gerado
+        path: ./output/template.yaml
