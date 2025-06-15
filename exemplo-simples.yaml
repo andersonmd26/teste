@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: exemplo-download
-  title: Exemplo com Download
+  title: Exemplo de download de arquivo
 spec:
   owner: user:default/andersonmd26
   type: service
@@ -14,17 +14,18 @@ spec:
         nome:
           type: string
           title: Nome do arquivo
-          default: arquivo-teste
+          default: exemplo-teste
 
   steps:
     - id: gerar
       name: Gerar arquivo
       action: fetch:template
       input:
-        url: ./templates/exemplo-simples/template.yaml.njk
+        url: ./templates/exemplo-simples
         targetPath: ./output
         values:
           nome: ${{ parameters.nome }}
+          descricao: Arquivo gerado via Backstage
 
   output:
     files:
