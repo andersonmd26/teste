@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: exemplo-azure
-  title: Projeto no Azure DevOps
-  description: Cria um repositório num projeto do Azure DevOps
+  name: Criar repositório
+  title: Criar repositório no Azure DevOps
+  description: Cria um repositório em um projeto do Azure DevOps
 spec:
   owner: DevOps
   type: service
@@ -14,7 +14,6 @@ spec:
         - organization
         - project
         - repo
-        - nome
       properties:
         organization:
           type: string
@@ -22,14 +21,11 @@ spec:
           default: andersonmd
         project:
           type: string
-          title: Projeto Azure DevOps
+          title: Nome do Projeto
           default: backstage
         repo:
           type: string
-          title: Nome do repositório
-        nome:
-          type: string
-          title: Nome lógico do serviço
+          title: Nome do repositório a ser criado
 
   steps:
     - id: fetch-base
@@ -46,7 +42,7 @@ spec:
       input:
         repoUrl: "dev.azure.com?organization=andersonmd&project=backstage&repo=${{ parameters.repo }}"
         description: "Projeto gerado pelo Backstage: ${{ parameters.nome }}"
-        defaultBranch: main
+        defaultBranch: desenvolvimento
 
   output:
     links:
