@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: exemplo-download
-  title: Exemplo de download de arquivo
+  name: exemplo-link
+  title: Exemplo de link para arquivo gerado
 spec:
   owner: user:default/andersonmd26
   type: service
@@ -27,7 +27,17 @@ spec:
           nome: ${{ parameters.nome }}
           descricao: Arquivo gerado via Backstage
 
+    - id: publicar
+      name: Publicar arquivo no GitHub/Azure/etc
+      action: publish:github  # ou publish:azure, conforme seu provider
+      input:
+        repoUrl: "github.com?repo=andersonmd/teste"
+        branchName: main
+        sourcePath: ./output
+        description: "Arquivo gerado via Backstage"
+        gitCommitMessage: "Add template.yaml"
+
   output:
-    files:
-      - title: Baixar arquivo gerado
-        path: ./output/template.yaml
+    links:
+      - title: Ver arquivo gerado
+        url: "https://github.com/andersonmd/teste/blob/main/template.yaml"
