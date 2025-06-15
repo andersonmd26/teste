@@ -1,7 +1,7 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: Criar repositório
+  name: criar-repo
   title: Criar repositório no Azure DevOps
   description: Cria um repositório em um projeto do Azure DevOps
 spec:
