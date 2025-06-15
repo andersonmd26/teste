@@ -30,10 +30,10 @@ spec:
   steps:
     - id: generate
       name: Gerar workspace.yaml
-      action: fetch:template
+      action: fetch:file
       input:
         url: https://raw.githubusercontent.com/andersonmd26/teste/main/templates/cria-sg-crossplane/workspace.yaml.njk
-        targetPath: ./output
+        targetPath: ./output/workspace.yaml.njk
         values:
           sgName:       ${{ parameters.sgName }}
           region:       ${{ parameters.region }}
