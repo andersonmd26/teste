@@ -135,7 +135,7 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl: "dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
+        repoUrl: dev.azure.com/andersonmd/backstage/crossplane9
         existing: true
         defaultBranch:     desenvolvimento
         # sourcePath:        output
