@@ -95,32 +95,37 @@ spec:
         repo:
           type: string
           title: Repositório
-          default: crossplane8
+          default: crossplane9
 
   steps:
-    - id: debug-vars
-      name: Logar variáveis recebidas
-      action: debug:log
+    - id: clone
+      name: Clone Azure Repo
+      action: azure:repo:clone
       input:
-        message: |
-          sgName: ${{ parameters.sgName }}
-          region: ${{ parameters.region }}
-          description: ${{ parameters.description }}
-          ingressRules: ${{ parameters.ingressRules }}
-          egressRules: ${{ parameters.egressRules }}
+        remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
+        branch: "desenvolvimento"
+        # targetPath: ./workspace
+
+    - id: clean
+      name: Remover workspace.yaml antigo
+      action: fs:delete
+      input:
+        files:
+          - workspace.yaml.njk
+          - workspace.yaml
 
     - id: generate
       name: Gerar workspace.yaml
       action: fetch:template
       input:
         url: ./skeleton
+        # targetPath: ./workspace
         values:
           sgName:       ${{ parameters.sgName }}
           region:       ${{ parameters.region }}
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
-          # targetPath: output
 
     - id: rename
       name: Renomear para workspace.yaml
@@ -130,16 +135,14 @@ spec:
           - from: workspace.yaml.njk
             to: workspace.yaml
 
-
     - id: push
       name: Push para repositório existente
       action: azure:repo:push
       input:
-        repoUrl: dev.azure.com/andersonmd/backstage/crossplane9
-        branch: desenvolvimento
-        filePaths:
-          - workspace.yaml
-        commitMessage: "Atualiza workspace.yaml via Backstage"
+        # repoUrl: dev.azure.com/andersonmd/backstage/crossplane9
+        branch: "desenvolvimento"
+        # sourcePath: ./workspace
+        gitCommitMessage: "Atualiza workspace.yaml via Backstage"
 
   output:
     links:
