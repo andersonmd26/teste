@@ -46,8 +46,8 @@ spec:
               protocol:
                 type: string
                 title: Protocolo
-                enum: ["tcp","udp","icmp"]
-                default: tcp
+                enum: ["tcp","udp","icmp","ssh"]
+                default: ssh
               cidrBlocks:
                 type: array
                 title: CIDR Blocks
@@ -95,7 +95,7 @@ spec:
         repo:
           type: string
           title: Repositório
-          default: sg-crossplane4
+          default: crossplane8
 
   steps:
     - id: debug-vars
@@ -113,23 +113,23 @@ spec:
       name: Gerar workspace.yaml
       action: fetch:template
       input:
-        url: ./templates/cria-sg-crossplane/workspace.yaml.njk
-        targetPath: ./output
+        url: ./skeleton
         values:
           sgName:       ${{ parameters.sgName }}
           region:       ${{ parameters.region }}
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
-        templateFile: workspace.yaml
+          # targetPath: output
 
-    - id: ls
-      name: Listar arquivos em ./output
-      action: debug:log
+    - id: rename
+      name: Renomear para workspace.yaml
+      action: fs:rename
       input:
-        message: |
-          Arquivos em ./output:
-          {{ $glob('./output/*') }}
+        files:
+          - from: workspace.yaml.njk
+            to: workspace.yaml
+
 
     - id: publish
       name: Publica no Azure DevOps
@@ -137,11 +137,11 @@ spec:
       input:
         repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
         defaultBranch:     desenvolvimento
-        sourcePath:        ./output
+        # sourcePath:        output
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Add workspace.yaml via Backstage"
 
   output:
     links:
       - title: Ver workspace.yaml no Azure DevOps
-        url: "https://dev.azure.com/${{parameters.organization}}/${{parameters.project}}/_git/${{parameters.repo}}/blob/desenvolvimento/workspace.yaml"
+        url: "https://dev.azure.com/${{parameters.organization}}/${{parameters.project}}/_git/${{parameters.repo}}?path=/workspace.yaml"
