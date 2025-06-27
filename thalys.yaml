@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: th26
+spec:
+  profile:
+    displayName: thalys
+    email: thalys@outlook.com
+  memberOf: []
+
