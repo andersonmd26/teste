@@ -131,16 +131,15 @@ spec:
             to: workspace.yaml
 
 
-    - id: publish
-      name: Publica no Azure DevOps
-      action: publish:azure
+    - id: push
+      name: Push para repositório existente
+      action: azure:repo:push
       input:
         repoUrl: dev.azure.com/andersonmd/backstage/crossplane9
-        existing: true
-        defaultBranch:     desenvolvimento
-        # sourcePath:        output
-        description:       "Workspace SG ${{ parameters.sgName }}"
-        gitCommitMessage:  "Add workspace.yaml via Backstage"
+        branch: desenvolvimento
+        filePaths:
+          - workspace.yaml
+        commitMessage: "Atualiza workspace.yaml via Backstage"
 
   output:
     links:
