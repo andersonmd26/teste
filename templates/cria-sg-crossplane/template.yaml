@@ -95,7 +95,7 @@ spec:
         repo:
           type: string
           title: Repositório
-          default: crossplane9
+          default: crossplane8
 
   steps:
     - id: debug-vars
@@ -135,7 +135,7 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl: "dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/${{ parameters.repo }}"
+        repoUrl: "dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git//${{ parameters.repo }}"
         existing: true
         defaultBranch:     desenvolvimento
         # sourcePath:        output
