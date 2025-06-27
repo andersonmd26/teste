@@ -140,6 +140,7 @@ spec:
         # sourcePath:        output
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Add workspace.yaml via Backstage"
+        existing: true
 
   output:
     links:
