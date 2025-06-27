@@ -95,7 +95,7 @@ spec:
         repo:
           type: string
           title: Repositório
-          default: crossplane8
+          default: crossplane9
 
   steps:
     - id: debug-vars
@@ -135,12 +135,12 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
+        repoUrl: "dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/${{ parameters.repo }}"
+        existing: true
         defaultBranch:     desenvolvimento
         # sourcePath:        output
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Add workspace.yaml via Backstage"
-        existing: true
 
   output:
     links:
