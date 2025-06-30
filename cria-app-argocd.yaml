@@ -2,11 +2,14 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: create-repo-and-argocd
-  title: Criar repo + Application no Argo CD
-  description: Cria repositório e Application no ArgoCD
+  title: Criar repo + ArgoCD Application
+  description: Cria repositório e application no Argo CD
 spec:
+  owner: user:anderson
+  type: service
+
   parameters:
-    - title: Informações do Componente
+    - title: Informações do Projeto
       required:
         - nome
       properties:
@@ -19,33 +22,50 @@ spec:
       name: Criar repositório
       action: publish:github
       input:
-        repoUrl: github.com/your-org/${{ parameters.nome }}
+        repoUrl: github.com/sua-org/${{ parameters.nome }}
         defaultBranch: main
-        description: Projeto gerado pelo Backstage
+        description: Projeto criado via Backstage
 
-    - id: criar-argocd
+    - id: criar-application-argocd
       name: Criar Application no ArgoCD
-      action: http:backstage:request
+      action: fetch:plain
       input:
+        url: https://argocd.suaempresa.com/api/v1/applications
         method: POST
-        path: '/argocd/api/v1/applications'
         headers:
-          Authorization: 'Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}'
+          Authorization: Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}
           Content-Type: application/json
         body: |
           {
-            "metadata": { "name": "${{ parameters.nome }}", "namespace":"argocd" },
+            "metadata": {
+              "name": "${{ parameters.nome }}",
+              "namespace": "argocd"
+            },
             "spec": {
               "project": "default",
-              "source": { "repoURL": "https://github.com/your-org/${{ parameters.nome }}.git", "targetRevision": "HEAD", "path": "manifests" },
-              "destination": { "server":"https://kubernetes.default.svc","namespace":"${{ parameters.nome }}" },
-              "syncPolicy": { "automated": {"prune": true,"selfHeal": true}, "syncOptions": ["CreateNamespace=true","RespectIgnoreDifferences=true"] }
+              "source": {
+                "repoURL": "https://github.com/sua-org/${{ parameters.nome }}.git",
+                "targetRevision": "HEAD",
+                "path": "manifests"
+              },
+              "destination": {
+                "server": "https://kubernetes.default.svc",
+                "namespace": "${{ parameters.nome }}"
+              },
+              "syncPolicy": {
+                "automated": {
+                  "prune": true,
+                  "selfHeal": true
+                },
+                "syncOptions": [
+                  "CreateNamespace=true"
+                ]
+              }
             }
           }
 
-
-    - id: registrar-catalogo
-      name: Adicionar ao catálogo
+    - id: registrar-no-catalogo
+      name: Registrar no catálogo
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps['criar-repo'].output.repoContentsUrl }}
@@ -53,5 +73,5 @@ spec:
 
   output:
     links:
-      - title: Repositório GitHub
+      - title: Repositório criado
         url: ${{ steps['criar-repo'].output.remoteUrl }}
