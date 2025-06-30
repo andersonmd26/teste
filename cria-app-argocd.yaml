@@ -1,0 +1,75 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: create-repo-and-argocd
+  title: Criar repo + Application no Argo CD
+  description: Cria repositório e Application no ArgoCD
+spec:
+  parameters:
+    - title: Informações do Componente
+      required:
+        - nome
+      properties:
+        nome:
+          type: string
+          title: Nome do app
+
+  steps:
+    - id: criar-repo
+      name: Criar repositório
+      action: publish:github
+      input:
+        repoUrl: github.com/your-org/${{ parameters.nome }}
+        defaultBranch: main
+        description: Projeto gerado pelo Backstage
+
+    - id: criar-argocd
+      name: Criar Application no ArgoCD
+      action: fetch:plain
+      input:
+        method: POST
+        url: https://argocd.amdexpert.com/api/v1/applications
+        headers:
+          Authorization: 'Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}'
+          Content-Type: application/json
+        body: |
+          {
+            "metadata": {
+              "name": "${{ parameters.nome }}",
+              "namespace": "argocd"
+            },
+            "spec": {
+              "project": "default",
+              "source": {
+                "repoURL": "https://github.com/your-org/${{ parameters.nome }}.git",
+                "targetRevision": "HEAD",
+                "path": "manifests"
+              },
+              "destination": {
+                "server": "https://kubernetes.default.svc",
+                "namespace": "${{ parameters.nome }}"
+              },
+              "syncPolicy": {
+                "automated": {
+                  "prune": true,
+                  "selfHeal": true
+                },
+                "syncOptions": [
+                  "CreateNamespace=true",
+                  "RespectIgnoreDifferences=true"
+                ]
+              }
+            }
+          }
+
+    - id: registrar-catalogo
+      name: Adicionar ao catálogo
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['criar-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repositório GitHub
+        url: ${{ steps['criar-repo'].output.remoteUrl }}
