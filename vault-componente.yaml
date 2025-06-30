@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vault
+  annotations:
+    argocd/app-name: vault
+spec:
+  type: service
+  owner: devops
+  lifecycle: production
