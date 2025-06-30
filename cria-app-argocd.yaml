@@ -25,42 +25,24 @@ spec:
 
     - id: criar-argocd
       name: Criar Application no ArgoCD
-      action: fetch:plain
+      action: http:backstage:request
       input:
         method: POST
-        url: https://argocd.amdexpert.com/api/v1/applications
+        path: '/argocd/api/v1/applications'
         headers:
           Authorization: 'Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}'
           Content-Type: application/json
         body: |
           {
-            "metadata": {
-              "name": "${{ parameters.nome }}",
-              "namespace": "argocd"
-            },
+            "metadata": { "name": "${{ parameters.nome }}", "namespace":"argocd" },
             "spec": {
               "project": "default",
-              "source": {
-                "repoURL": "https://github.com/your-org/${{ parameters.nome }}.git",
-                "targetRevision": "HEAD",
-                "path": "manifests"
-              },
-              "destination": {
-                "server": "https://kubernetes.default.svc",
-                "namespace": "${{ parameters.nome }}"
-              },
-              "syncPolicy": {
-                "automated": {
-                  "prune": true,
-                  "selfHeal": true
-                },
-                "syncOptions": [
-                  "CreateNamespace=true",
-                  "RespectIgnoreDifferences=true"
-                ]
-              }
+              "source": { "repoURL": "https://github.com/your-org/${{ parameters.nome }}.git", "targetRevision": "HEAD", "path": "manifests" },
+              "destination": { "server":"https://kubernetes.default.svc","namespace":"${{ parameters.nome }}" },
+              "syncPolicy": { "automated": {"prune": true,"selfHeal": true}, "syncOptions": ["CreateNamespace=true","RespectIgnoreDifferences=true"] }
             }
           }
+
 
     - id: registrar-catalogo
       name: Adicionar ao catálogo
