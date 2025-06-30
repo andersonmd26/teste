@@ -18,12 +18,15 @@ spec:
         organization:
           title: Organização no Azure DevOps
           type: string
+          default: andersonmd
         project:
           title: Projeto no Azure DevOps
           type: string
+          default: backstage
         repo:
           title: Nome do repositório
           type: string
+          default: backstage_teste
 
 
   steps:
@@ -37,43 +40,36 @@ spec:
         gitCommitMessage: "Primeiro commit pelo Backstage"
 
 
-    - id: criar-application-argocd
+    - id: criar-argocd
       name: Criar Application no ArgoCD
-      action: fetch:plain
+      action: http:backstage
       input:
-        url: https://argocd.suaempresa.com/api/v1/applications
         method: POST
+        url: https://argocd.amdexpert.com/api/v1/applications
         headers:
-          Authorization: Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          Authorization: 'Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}'
           Content-Type: application/json
-        body: |
-          {
-            "metadata": {
-              "name": "${{ parameters.nome }}",
-              "namespace": "argocd"
-            },
-            "spec": {
-              "project": "default",
-              "source": {
-                "repoURL": "https://github.com/sua-org/${{ parameters.nome }}.git",
-                "targetRevision": "HEAD",
-                "path": "manifests"
-              },
-              "destination": {
-                "server": "https://kubernetes.default.svc",
-                "namespace": "${{ parameters.nome }}"
-              },
-              "syncPolicy": {
-                "automated": {
-                  "prune": true,
-                  "selfHeal": true
-                },
-                "syncOptions": [
-                  "CreateNamespace=true"
-                ]
-              }
-            }
-          }
+        body:
+          metadata:
+            name: ${{ parameters.repo }}
+            namespace: argocd
+          spec:
+            project: default
+            source:
+              repoURL: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
+              targetRevision: HEAD
+              path: manifests
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: ${{ parameters.repo }}
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true
+                - RespectIgnoreDifferences=true
+
 
     - id: registrar-no-catalogo
       name: Registrar no catálogo
