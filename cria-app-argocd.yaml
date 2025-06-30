@@ -9,22 +9,33 @@ spec:
   type: service
 
   parameters:
-    - title: Informações do Projeto
+    - title: Dados do repositório
       required:
-        - nome
+        - organization
+        - project
+        - repo
       properties:
-        nome:
+        organization:
+          title: Organização no Azure DevOps
           type: string
-          title: Nome do app
+        project:
+          title: Projeto no Azure DevOps
+          type: string
+        repo:
+          title: Nome do repositório
+          type: string
+
 
   steps:
-    - id: criar-repo
-      name: Criar repositório
-      action: publish:github
+    - id: publish
+      name: Publicar no Azure DevOps
+      action: publish:azure
       input:
-        repoUrl: github.com/sua-org/${{ parameters.nome }}
-        defaultBranch: main
-        description: Projeto criado via Backstage
+        repoUrl: "dev.azure.com?organization=${{ parameters.organization }}&project=${{ parameters.project }}&repo=${{ parameters.repo }}"
+        defaultBranch: desenvolvimento
+        description: Projeto gerado automaticamente via Backstage
+        gitCommitMessage: "Primeiro commit pelo Backstage"
+
 
     - id: criar-application-argocd
       name: Criar Application no ArgoCD
