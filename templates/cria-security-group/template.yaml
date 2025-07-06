@@ -132,13 +132,22 @@ spec:
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Security Group ${{ parameters.sgName }} criado via Backstage"
 
-# aqui comça parte para envio do catalog        
+# aqui comça parte para envio do catalog
+
+    - id: clone-argocd
+      name: Clonar repo applications_argocd
+      action: azure:repo:clone
+      input:
+        remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/catalogos"
+        branch: desenvolvimento
+        targetPath: catalogos
+
     - id: generate
       name: Gerar workspace.yaml
       action: fetch:template
       input:
         url: ./skeleton-sg
-        targetPath: catalog
+        targetPath: catalogos
         values:
           sgName:       ${{ parameters.sgName }}
           organization: ${{ parameters.organization }}
@@ -151,18 +160,17 @@ spec:
       action: fs:rename
       input:
         files:
-          - from: catalog/catalog-info.yaml.njk
-            to: catalog/catalog-info.yaml
-
-    - id: publish
-      name: Publica no Azure DevOps
-      action: publish:azure
+          - from: catalogos/catalog-info.yaml.njk
+            to: catalogos/catalog-info.yaml
+            
+    - id: push-catalogo
+      name: Push Catalogo
+      action: azure:repo:push
       input:
-        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=catalogos"
-        defaultBranch:     desenvolvimento
-        sourcePath:        catalog
-        description:       "Workspace SG ${{ parameters.sgName }}"
-        gitCommitMessage:  "Security Group ${{ parameters.sgName }} criado via Backstage"
+        branch: desenvolvimento
+        gitCommitMessage: Cria catalogo ${{ parameters.sgName }}
+        force: true
+        sourcePath: catalogos
 
     - id: register
       name: Registrar no Backstage (cria componente)
