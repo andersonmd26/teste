@@ -1,0 +1,171 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: cria-sg-crossplane
+  title: Criar Security Group no Crossplane
+  description: Gera um Workspace do Crossplane (OpenTofu) com AWS Security Group
+spec:
+  owner: DevOps
+  type: configuration
+
+  parameters:
+    # 1) Parâmetros de infra
+    - title: Configurações do Security Group
+      required:
+        - sgName
+        - region
+        - description
+      properties:
+        sgName:
+          type: string
+          title: Nome do SG
+          default: sg-exemplo
+        region:
+          type: string
+          title: Região Crossplane
+          default: us-east-1
+        description:
+          type: string
+          title: Descrição
+          default: "Criado via Backstage"
+        ingressRules:
+          type: array
+          title: Regras de Ingresso
+          items:
+            type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
+            properties:
+              fromPort:
+                type: number
+                title: Porta Inicial
+                default: 22
+              toPort:
+                type: number
+                title: Porta Final
+                default: 22
+              protocol:
+                type: string
+                title: Protocolo
+                enum: ["tcp","udp","icmp","ssh"]
+                default: ssh
+              cidrBlocks:
+                type: array
+                title: CIDR Blocks
+                items:
+                  type: string
+                default: ["0.0.0.0/0"]
+        egressRules:
+          type: array
+          title: Regras de Egressão
+          items:
+            type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
+            properties:
+              fromPort:
+                type: number
+                title: Porta Inicial
+                default: 0
+              toPort:
+                type: number
+                title: Porta Final
+                default: 0
+              protocol:
+                type: string
+                title: Protocolo
+                enum: ["tcp","udp","icmp","-1"]
+                default: -1
+              cidrBlocks:
+                type: array
+                title: CIDR Blocks
+                items:
+                  type: string
+                default: ["0.0.0.0/0"]
+
+    - title: Azure DevOps Repo
+      required: [organization, project, repo]
+      properties:
+        organization:
+          type: string
+          title: Organização
+          default: andersonmd
+        project:
+          type: string
+          title: Projeto
+          default: backstage
+        repo:
+          type: string
+          title: Repositório
+          default: crossplane9
+        repoOption:
+          type: string
+          title: Ação com repositório
+          enum:
+            - existente
+            - novo
+          default: existente
+
+  steps:
+    - id: clone
+      name: Clone Azure Repo
+      if: ${{ parameters.repoOption === 'existente' }}
+      action: azure:repo:clone
+      input:
+        remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"
+        branch: "desenvolvimento"
+        # targetPath: ./workspace
+
+    - id: clean
+      name: Remover workspace.yaml antigo
+      if: ${{ parameters.repoOption === 'existente' }}
+      action: fs:delete
+      input:
+        files:
+          - workspace.yaml.njk
+          - workspace.yaml
+
+    - id: generate
+      name: Gerar workspace.yaml
+      action: fetch:template
+      input:
+        url: ./skeleton
+        # targetPath: ./workspace
+        values:
+          sgName:       ${{ parameters.sgName }}
+          region:       ${{ parameters.region }}
+          description:  ${{ parameters.description }}
+          ingressRules: ${{ parameters.ingressRules }}
+          egressRules:  ${{ parameters.egressRules }}
+
+    - id: rename
+      name: Renomear para workspace.yaml
+      action: fs:rename
+      input:
+        files:
+          - from: workspace.yaml.njk
+            to: workspace.yaml
+
+    - id: publish
+      name: Cria repositório no Azure DevOps
+      if: ${{ parameters.repoOption === 'novo' }}
+      action: publish:azure
+      input:
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
+        defaultBranch:     desenvolvimento
+        # sourcePath:        output
+        description:       "Workspace SG ${{ parameters.sgName }}"
+        gitCommitMessage:  "Add workspace.yaml via Backstage"
+
+    - id: push
+      name: Atualiza repositório existente
+      if: ${{ parameters.repoOption === 'existente' }}    
+      action: azure:repo:push
+      input:
+        # repoUrl: dev.azure.com/andersonmd/backstage/crossplane9
+        branch: "desenvolvimento"
+        # sourcePath: ./workspace
+        gitCommitMessage: "Atualiza workspace.yaml via Backstage"
+
+  output:
+    links:
+      - title: Ver workspace.yaml no Azure DevOps
+        url: "https://dev.azure.com/${{parameters.organization}}/${{parameters.project}}/_git/${{parameters.repo}}?path=/workspace.yaml"
