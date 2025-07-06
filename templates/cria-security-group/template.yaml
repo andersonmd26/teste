@@ -121,8 +121,8 @@ spec:
         files:
           - from: sg/workspace.yaml.njk
             to: sg/workspace.yaml
-          - from: sg/catalog-info.yaml.njk
-            to: sg/catalog-info.yaml
+          - from: sg/catalog/catalog-info.yaml.njk
+            to: sg/catalog/catalog-info.yaml
 
     - id: publish
       name: Publica no Azure DevOps
@@ -139,7 +139,7 @@ spec:
       action: catalog:register
       input:
         repoContentsUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
-        catalogInfoPath: /catalog-info.yaml
+        catalogInfoPath: /catalog/catalog-info.yaml
 
       
 # aqui começa parte de criar o application do argocd
