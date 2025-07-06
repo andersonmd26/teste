@@ -108,6 +108,9 @@ spec:
           description:  ${{ parameters.description }}
           ingressRules: ${{ parameters.ingressRules }}
           egressRules:  ${{ parameters.egressRules }}
+          organization: ${{ parameters.organization }}
+          project:      ${{ parameters.project }}
+          repoInfra:    ${{ parameters.repoInfra }}
           # targetPath: output
 
     - id: rename
@@ -127,6 +130,14 @@ spec:
         # sourcePath:        output
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Security Group ${{ parameters.sgName }} criado via Backstage"
+
+    - id: register
+      name: Registrar no Backstage (cria componente)
+      action: catalog:register
+      input:
+        repoContentsUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
+        catalogInfoPath: /catalog-info.yaml
+
       
 # aqui começa parte de criar o application do argocd
     - id: clone-argocd

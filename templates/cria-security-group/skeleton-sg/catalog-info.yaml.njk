@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.sgName }}
+  description: Security Group criado via Backstage
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/source-location: url:https://dev.azure.com/${{ values.organization }}/${{ values.project }}/_git/${{ values.repoInfra }}
+    argocd/app-name: ${{ values.sgName }}
+spec:
+  type: infrastructure
+  lifecycle: experimental
+  owner: DevOps
