@@ -120,6 +120,8 @@ spec:
         files:
           - from: workspace.yaml.njk
             to: workspace.yaml
+          - from: catalog-info.yaml.njk
+            to: catalog-info.yaml
 
     - id: publish
       name: Publica no Azure DevOps
@@ -168,7 +170,7 @@ spec:
       name: Push do Application ArgoCD
       action: azure:repo:push
       input:
-        branch: main
+        branch: desenvolvimento
         gitCommitMessage: Criado Application do ArgoCD via Backstage
 
   output:
