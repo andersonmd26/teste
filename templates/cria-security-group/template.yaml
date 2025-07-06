@@ -97,16 +97,6 @@ spec:
           ui:field: hidden
 
   steps:
-    - id: publish
-      name: Cria repo no Azure DevOps
-      action: publish:azure
-      input:
-        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repoInfra}}"
-        defaultBranch:     desenvolvimento
-        # sourcePath:        output
-        description:       "Workspace SG ${{ parameters.sgName }}"
-        gitCommitMessage:  "Criado via Backstage"
-
     - id: generate
       name: Gerar workspace.yaml
       action: fetch:template
@@ -132,7 +122,7 @@ spec:
       name: Publica no Azure DevOps
       action: publish:azure
       input:
-        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repoInfra}}"
         defaultBranch:     desenvolvimento
         # sourcePath:        output
         description:       "Workspace SG ${{ parameters.sgName }}"
