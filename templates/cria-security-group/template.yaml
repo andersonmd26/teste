@@ -29,6 +29,58 @@ spec:
         repoInfra:
           type: string
           title: Nome do repositório para o SG
+          ingressRules:
+          type: array
+          title: Regras de Ingresso
+          items:
+            type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
+            properties:
+              fromPort:
+                type: number
+                title: Porta Inicial
+                default: 22
+              toPort:
+                type: number
+                title: Porta Final
+                default: 22
+              protocol:
+                type: string
+                title: Protocolo
+                enum: ["tcp","udp","icmp","ssh"]
+                default: ssh
+              cidrBlocks:
+                type: array
+                title: CIDR Blocks
+                items:
+                  type: string
+                default: ["0.0.0.0/0"]
+        egressRules:
+          type: array
+          title: Regras de Egressão
+          items:
+            type: object
+            required: [fromPort,toPort,protocol,cidrBlocks]
+            properties:
+              fromPort:
+                type: number
+                title: Porta Inicial
+                default: 0
+              toPort:
+                type: number
+                title: Porta Final
+                default: 0
+              protocol:
+                type: string
+                title: Protocolo
+                enum: ["tcp","udp","icmp","-1"]
+                default: -1
+              cidrBlocks:
+                type: array
+                title: CIDR Blocks
+                items:
+                  type: string
+                default: ["0.0.0.0/0"]
 
     - title: Azure DevOps
       required: [organization, project]
@@ -53,32 +105,40 @@ spec:
         defaultBranch:     desenvolvimento
         # sourcePath:        output
         description:       "Workspace SG ${{ parameters.sgName }}"
-        gitCommitMessage:  "Cria repo via Backstage"
+        gitCommitMessage:  "Criado via Backstage"
 
-    - id: clone-infra
-      name: Clonar repositório do SG
-      action: azure:repo:clone
-      input:
-        remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
-        branch: main
-
-    - id: generate-sg
-      name: Gerar arquivos do SG
+    - id: generate
+      name: Gerar workspace.yaml
       action: fetch:template
       input:
         url: ./skeleton-sg
         values:
-          sgName: ${{ parameters.sgName }}
-          region: ${{ parameters.region }}
-          description: ${{ parameters.description }}
+          sgName:       ${{ parameters.sgName }}
+          region:       ${{ parameters.region }}
+          description:  ${{ parameters.description }}
+          ingressRules: ${{ parameters.ingressRules }}
+          egressRules:  ${{ parameters.egressRules }}
+          # targetPath: output
 
-    - id: push-sg
-      name: Push do SG
-      action: azure:repo:push
+    - id: rename
+      name: Renomear para workspace.yaml
+      action: fs:rename
       input:
-        branch: main
-        gitCommitMessage: Criado SG via Backstage
+        files:
+          - from: workspace.yaml.njk
+            to: workspace.yaml
 
+    - id: publish
+      name: Publica no Azure DevOps
+      action: publish:azure
+      input:
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
+        defaultBranch:     desenvolvimento
+        # sourcePath:        output
+        description:       "Workspace SG ${{ parameters.sgName }}"
+        gitCommitMessage:  "Security Group ${{ parameters.sgName }} criado via Backstage"
+      
+# aqui começa parte de criar o application do argocd
     - id: clone-argocd
       name: Clonar repo applications_argocd
       action: azure:repo:clone
