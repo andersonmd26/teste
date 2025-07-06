@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: cria-sg-crossplane
-  title: Criar Security Group no Crossplane
+  title: Criar Security Group no Crossplane2
   description: Gera um Workspace do Crossplane (OpenTofu) com AWS Security Group
 spec:
   owner: DevOps
