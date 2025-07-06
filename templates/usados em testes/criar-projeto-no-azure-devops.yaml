@@ -1,0 +1,50 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: criar-repo
+  title: Criar repositório no Azure DevOps
+  description: Cria um repositório em um projeto do Azure DevOps
+spec:
+  owner: DevOps
+  type: service
+
+  parameters:
+    - title: Informações Básicas
+      required:
+        - organization
+        - project
+        - repo
+      properties:
+        organization:
+          type: string
+          title: Organização Azure
+          default: andersonmd
+        project:
+          type: string
+          title: Nome do Projeto
+          default: backstage
+        repo:
+          type: string
+          title: Nome do repositório a ser criado
+
+  steps:
+    - id: fetch-base
+      name: Clona os arquivos do template
+      action: fetch:template
+      input:
+        url: ./
+        values:
+          nome: ${{ parameters.nome }}
+
+    - id: publish
+      name: Publica no Azure DevOps
+      action: publish:azure
+      input:
+        repoUrl: "dev.azure.com?organization=andersonmd&project=backstage&repo=${{ parameters.repo }}"
+        description: "Projeto gerado pelo Backstage: ${{ parameters.nome }}"
+        defaultBranch: desenvolvimento
+
+  output:
+    links:
+      - title: Acesse o repositório
+        url: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repo }}"

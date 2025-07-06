@@ -1,0 +1,105 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: cria-sg-crossplane
+  title: Criar Security Group na AWS
+  description: Provisiona um Security Group na AWS.
+spec:
+  owner: DevOps
+  type: configuration
+
+  parameters:
+    - title: Configurações do Security Group
+      required: [sgName, region, description, repoInfra]
+      properties:
+        sgName:
+          type: string
+          title: Nome do SG
+        region:
+          type: string
+          title: Região AWS
+          enum:
+            - us-east-1
+            - sa-east-1
+          default: existente
+        description:
+          type: string
+          title: Descrição
+          default: Criado via Backstage
+        repoInfra:
+          type: string
+          title: Nome do repositório para o SG
+
+    - title: Azure DevOps
+      required: [organization, project]
+      properties:
+        organization:
+          type: string
+          title: Organização
+          default: andersonmd
+          ui:field: hidden
+        project:
+          type: string
+          title: Projeto
+          default: backstage
+          ui:field: hidden
+
+  steps:
+    - id: create-infra-repo
+      name: Criar repositório para o SG
+      action: azure:repo:create
+      input:
+        repoName: ${{ parameters.repoInfra }}
+        project: ${{ parameters.project }}
+
+    - id: clone-infra
+      name: Clonar repositório do SG
+      action: azure:repo:clone
+      input:
+        remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
+        branch: main
+
+    - id: generate-sg
+      name: Gerar arquivos do SG
+      action: fetch:template
+      input:
+        url: ./skeleton-sg
+        values:
+          sgName: ${{ parameters.sgName }}
+          region: ${{ parameters.region }}
+          description: ${{ parameters.description }}
+
+    - id: push-sg
+      name: Push do SG
+      action: azure:repo:push
+      input:
+        branch: main
+        gitCommitMessage: Criado SG via Backstage
+
+    - id: clone-argocd
+      name: Clonar repo applications_argocd
+      action: azure:repo:clone
+      input:
+        remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/applications_argocd"
+        branch: main
+
+    - id: generate-app
+      name: Gerar Application do ArgoCD
+      action: fetch:template
+      input:
+        url: ./skeleton-argocd
+        values:
+          appName: ${{ parameters.sgName }}
+          repoUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
+
+    - id: push-app
+      name: Push do Application ArgoCD
+      action: azure:repo:push
+      input:
+        branch: main
+        gitCommitMessage: Criado Application do ArgoCD via Backstage
+
+  output:
+    links:
+      - title: Ver repositório do SG
+        url: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
