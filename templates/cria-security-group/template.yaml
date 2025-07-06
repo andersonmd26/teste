@@ -172,7 +172,6 @@ spec:
       input:
         repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=applications_argocd"
         defaultBranch:     desenvolvimento
-        force: true
         description:       "Application ArgoCD ${{ parameters.sgName }}"
         gitCommitMessage:  "Criado Application do ArgoCD via Backstage"
 
