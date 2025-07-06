@@ -114,7 +114,7 @@ spec:
           repoInfra:    ${{ parameters.repoInfra }}
           # targetPath: output
 
-    - id: rename
+    - id: rename_sg
       name: Renomear para workspace.yaml
       action: fs:rename
       input:
@@ -122,7 +122,7 @@ spec:
           - from: sg/workspace.yaml.njk
             to: sg/workspace.yaml
 
-    - id: publish
+    - id: publish_sg
       name: Publica no Azure DevOps
       action: publish:azure
       input:
@@ -134,7 +134,7 @@ spec:
 
 # aqui comça parte para envio do catalog
 
-    - id: clone-argocd
+    - id: clone-catalog
       name: Clonar repo applications_argocd
       action: azure:repo:clone
       input:
@@ -142,7 +142,7 @@ spec:
         branch: desenvolvimento
         targetPath: catalogos
 
-    - id: generate
+    - id: generate_catalog
       name: Gerar workspace.yaml
       action: fetch:template
       input:
@@ -155,7 +155,7 @@ spec:
           repoInfra:    ${{ parameters.repoInfra }}
           # targetPath: output
 
-    - id: rename
+    - id: rename_catalog
       name: Renomear para catalog-info.yaml
       action: fs:rename
       input:
@@ -199,7 +199,7 @@ spec:
           appName: ${{ parameters.sgName }}
           repoUrl: "git@ssh.dev.azure.com:v3/${{ parameters.organization }}/${{ parameters.project }}/${{ parameters.repoInfra }}"
 
-    - id: rename
+    - id: rename_argocd
       name: Renomear para application.yaml
       action: fs:rename
       input:
