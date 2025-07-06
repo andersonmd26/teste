@@ -177,7 +177,7 @@ spec:
       action: catalog:register
       input:
         repoContentsUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/catalogos"
-        catalogInfoPath: /catalog-info.yaml
+        catalogInfoPath: /catalog-info-${{ parameters.sgName }}.yaml
 
       
 # aqui começa parte de criar o application do argocd
