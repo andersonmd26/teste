@@ -29,7 +29,7 @@ spec:
         repoInfra:
           type: string
           title: Nome do repositório para o SG
-          ingressRules:
+        ingressRules:
           type: array
           title: Regras de Ingresso
           items:
