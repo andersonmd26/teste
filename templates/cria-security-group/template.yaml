@@ -47,7 +47,7 @@ spec:
   steps:
     - id: create-infra-repo
       name: Criar repositório para o SG
-      action: azure:repo:create
+      action: publish:azure
       input:
         repoName: ${{ parameters.repoInfra }}
         project: ${{ parameters.project }}
