@@ -1,9 +1,0 @@
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: andersonmd26
-spec:
-  profile:
-    displayName: Anderson
-    email: andersonmd@outlook.com
-  memberOf: []
