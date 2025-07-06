@@ -114,12 +114,6 @@ spec:
           repoInfra:    ${{ parameters.repoInfra }}
           # targetPath: output
 
-    - id: criar-catalog
-      name: Criar pasta catalog
-      action: fs:mkdir
-      input:
-        path: catalog
-
     - id: rename
       name: Renomear para workspace.yaml
       action: fs:rename
@@ -127,8 +121,6 @@ spec:
         files:
           - from: sg/workspace.yaml.njk
             to: sg/workspace.yaml
-          - from: sg/catalog-info.yaml.njk
-            to: catalog/catalog-info.yaml
 
     - id: publish
       name: Publica no Azure DevOps
@@ -140,12 +132,44 @@ spec:
         description:       "Workspace SG ${{ parameters.sgName }}"
         gitCommitMessage:  "Security Group ${{ parameters.sgName }} criado via Backstage"
 
+# aqui comça parte para envio do catalog        
+    - id: generate
+      name: Gerar workspace.yaml
+      action: fetch:template
+      input:
+        url: ./skeleton-sg
+        targetPath: catalog
+        values:
+          sgName:       ${{ parameters.sgName }}
+          organization: ${{ parameters.organization }}
+          project:      ${{ parameters.project }}
+          repoInfra:    ${{ parameters.repoInfra }}
+          # targetPath: output
+
+    - id: rename
+      name: Renomear para catalog-info.yaml
+      action: fs:rename
+      input:
+        files:
+          - from: catalog/catalog-info.yaml.njk
+            to: catalog/catalog-info.yaml
+
+    - id: publish
+      name: Publica no Azure DevOps
+      action: publish:azure
+      input:
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=catalogos"
+        defaultBranch:     desenvolvimento
+        sourcePath:        catalog
+        description:       "Workspace SG ${{ parameters.sgName }}"
+        gitCommitMessage:  "Security Group ${{ parameters.sgName }} criado via Backstage"
+
     - id: register
       name: Registrar no Backstage (cria componente)
       action: catalog:register
       input:
-        repoContentsUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
-        catalogInfoPath: /catalog/catalog-info.yaml
+        repoContentsUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/catalogos"
+        catalogInfoPath: /catalog-info.yaml
 
       
 # aqui começa parte de criar o application do argocd
@@ -168,7 +192,7 @@ spec:
           repoUrl: "git@ssh.dev.azure.com:v3/${{ parameters.organization }}/${{ parameters.project }}/${{ parameters.repoInfra }}"
 
     - id: rename
-      name: Renomear para workspace.yaml
+      name: Renomear para application.yaml
       action: fs:rename
       input:
         files:
