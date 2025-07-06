@@ -147,7 +147,7 @@ spec:
       action: azure:repo:clone
       input:
         remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/applications_argocd"
-        branch: main
+        branch: desenvolvimento
 
     - id: generate-app
       name: Gerar Application do ArgoCD
