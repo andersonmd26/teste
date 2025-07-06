@@ -120,7 +120,7 @@ spec:
       input:
         files:
           - from: sg/workspace.yaml.njk
-            to: sg/workspace.yaml
+            to: sg/workspace-${{ parameters.sgName }}.yaml
 
     - id: publish_sg
       name: Publica no Azure DevOps
@@ -143,7 +143,7 @@ spec:
         targetPath: catalogos
 
     - id: generate_catalog
-      name: Gerar workspace.yaml
+      name: Gerar catalog-info.yaml
       action: fetch:template
       input:
         url: ./skeleton-catalog
@@ -161,7 +161,7 @@ spec:
       input:
         files:
           - from: catalogos/catalog-info.yaml.njk
-            to: catalogos/catalog-info.yaml
+            to: catalogos/catalog-info-${{ parameters.sgName }}.yaml
             
     - id: push-catalogo
       name: Push Catalogo
@@ -205,7 +205,7 @@ spec:
       input:
         files:
           - from: argocd/application.yaml.njk
-            to: argocd/application.yaml
+            to: argocd/application-${{ parameters.sgName }}.yaml
 
     - id: push-app
       name: Push do Application ArgoCD
