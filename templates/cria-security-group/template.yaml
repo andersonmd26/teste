@@ -166,13 +166,15 @@ spec:
           - from: application.yaml.njk
             to: application.yaml
 
-    - id: push-app
-      name: Push do Application ArgoCD
-      action: azure:repo:push
+    - id: publish-app
+      name: Publicar no applications_argocd
+      action: publish:azure
       input:
-        branch: desenvolvimento
-        gitCommitMessage: Criado Application do ArgoCD via Backstage
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=applications_argocd"
+        defaultBranch:     desenvolvimento
         force: true
+        description:       "Application ArgoCD ${{ parameters.sgName }}"
+        gitCommitMessage:  "Criado Application do ArgoCD via Backstage"
 
   output:
     links:
