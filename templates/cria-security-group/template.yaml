@@ -114,6 +114,12 @@ spec:
           repoInfra:    ${{ parameters.repoInfra }}
           # targetPath: output
 
+    - id: criar-catalog
+      name: Criar pasta catalog
+      action: fs:mkdir
+      input:
+        path: catalog
+
     - id: rename
       name: Renomear para workspace.yaml
       action: fs:rename
@@ -121,8 +127,8 @@ spec:
         files:
           - from: sg/workspace.yaml.njk
             to: sg/workspace.yaml
-          - from: sg/catalog/catalog-info.yaml.njk
-            to: sg/catalog/catalog-info.yaml
+          - from: sg/catalog-info.yaml.njk
+            to: catalog/catalog-info.yaml
 
     - id: publish
       name: Publica no Azure DevOps
