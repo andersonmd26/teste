@@ -45,12 +45,15 @@ spec:
           ui:field: hidden
 
   steps:
-    - id: create-infra-repo
-      name: Criar repositório para o SG
+    - id: publish
+      name: Cria repo no Azure DevOps
       action: publish:azure
       input:
-        repoName: ${{ parameters.repoInfra }}
-        project: ${{ parameters.project }}
+        repoUrl:           "dev.azure.com?organization=${{parameters.organization}}&project=${{parameters.project}}&repo=${{parameters.repo}}"
+        defaultBranch:     desenvolvimento
+        # sourcePath:        output
+        description:       "Workspace SG ${{ parameters.sgName }}"
+        gitCommitMessage:  "Cria repo via Backstage"
 
     - id: clone-infra
       name: Clonar repositório do SG
