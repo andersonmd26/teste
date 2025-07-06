@@ -47,7 +47,7 @@ spec:
               protocol:
                 type: string
                 title: Protocolo
-                enum: ["tcp","udp","icmp","ssh"]
+                enum: ["tcp","udp","icmp"]
                 default: ssh
               cidrBlocks:
                 type: array
