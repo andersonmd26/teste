@@ -145,6 +145,14 @@ spec:
           appName: ${{ parameters.sgName }}
           repoUrl: "https://dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/${{ parameters.repoInfra }}"
 
+    - id: rename
+      name: Renomear para workspace.yaml
+      action: fs:rename
+      input:
+        files:
+          - from: application.yaml.njk
+            to: application.yaml
+
     - id: push-app
       name: Push do Application ArgoCD
       action: azure:repo:push
