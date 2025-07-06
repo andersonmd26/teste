@@ -149,6 +149,7 @@ spec:
       input:
         remoteUrl: "https://${{ parameters.organization }}@dev.azure.com/${{ parameters.organization }}/${{ parameters.project }}/_git/applications_argocd"
         branch: desenvolvimento
+        targetPath: argocd
 
     - id: generate-app
       name: Gerar Application do ArgoCD
