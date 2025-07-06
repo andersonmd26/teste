@@ -172,6 +172,7 @@ spec:
       input:
         branch: desenvolvimento
         gitCommitMessage: Criado Application do ArgoCD via Backstage
+        force: true
 
   output:
     links:
